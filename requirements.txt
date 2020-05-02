@@ -1,0 +1,15 @@
+pymongo[srv]
+python-dateutil
+panel
+jupyter
+jupyterlab
+nbformat
+ipython
+black
+pytype
+ipywidgets
+plotly
+tabulate
+pandas
+matplotlib
+dovpanda
