@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pandas
 import pandas as pd
 import pymongo
 from pymongo import MongoClient
@@ -14,10 +13,10 @@ meta = metadata.find_one()
 last_date = meta["last_date"]
 
 
-def snag_data(columns=("date", "confirmed", "deaths",'state'),**filters):
+def snag_data(columns=("date", "confirmed", "deaths", 'state'), **filters):
     df = pd.DataFrame(
         stats.find(filters)
-        .sort("state", pymongo.DESCENDING)
+            .sort("state", pymongo.DESCENDING)
     )
     if 'uid' in df.columns:
         del df['uid']
@@ -31,7 +30,7 @@ def snag_data(columns=("date", "confirmed", "deaths",'state'),**filters):
     return df
 
 
-def get_for_country_day(country='US',stat_date=None,**filters):
+def get_for_country_day(country='US', stat_date=None, **filters):
     if stat_date is None:
         stat_date = last_date
 
@@ -39,10 +38,10 @@ def get_for_country_day(country='US',stat_date=None,**filters):
     return snag_data(**filters)
 
 
-EARTH_RADIUS = 6371.0 # This is used in the $geoWithin query later.
+EARTH_RADIUS = 6371.0  # This is used in the $geoWithin query later.
 
 
-def near_by_data(query_date=None,longitude=-74.114202,latitude=40.6737968,distance_km=250.0,group_by='state'):
+def near_by_data(query_date=None, longitude=-74.114202, latitude=40.6737968, distance_km=250.0, group_by='state'):
     if query_date is None:
         query_date = last_full_date
     results = stats.find(
@@ -62,8 +61,8 @@ def near_by_data(query_date=None,longitude=-74.114202,latitude=40.6737968,distan
     del df['uid']
     del df['fips']
     del df['country_code']
-    df['per_capita_deaths']    = df['deaths']/df['population']
-    df['per_capita_confirmed'] = df['confirmed']/df['population']
+    df['per_capita_deaths'] = df['deaths'] / df['population']
+    df['per_capita_confirmed'] = df['confirmed'] / df['population']
     return df
 
 
