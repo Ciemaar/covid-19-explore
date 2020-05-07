@@ -19,61 +19,33 @@ def add_hover_tool(plot):
         formatters={'@date': 'datetime', }))
 
 
-def make_graph(df, column):
-    p = figure(title=column)
+def make_graph(df, title, extra_df=None, extra_suffix=''):
+    p = figure(title=title)
     p.xaxis.formatter = DatetimeTickFormatter()
     add_hover_tool(p)
 
-    source = ColumnDataSource(df.pivot(index='date', columns='combined_name', values=column))
+    source = ColumnDataSource(df)
     for palette, city in enumerate(source.column_names):
         if city == 'date': continue  # TODO:  FixMe
         p.line('date', city, name=city,
-               legend_label=city, color=Category20[20][palette], source=source, width=2)
+               legend_label=city, color=Category20[len(source.column_names)][palette], source=source, width=2)
+    if extra_df is not None:
+        extra_source = ColumnDataSource(extra_df)
+        for palette, city in enumerate(extra_source.column_names):
+            if city == 'date': continue  # TODO:  FixMe
+            p.line('date', city, name=f'{city} {extra_suffix}',
+                   color=Category20[len(extra_source.column_names)][palette], source=extra_source,
+                   width=1, line_dash="dashed")
     p.legend.location = "top_left"
-    return pn.Row(column, pn.pane.Bokeh(p, name=column), name=column)
+    return pn.pane.Bokeh(p, name=title)
 
 
 def column_summary(inframe, column):
     ret = []
     deltas, smoothed_deltas, ddeltas, smoothed_ddeltas, dddeltas, smoothed_dddeltas, predicted_deltas = calculate_discrete_derivatives(
         inframe, column)
-    p = figure(title=f'{column}/day', )
-    p.xaxis.formatter = DatetimeTickFormatter()
-    add_hover_tool(p)
-    source = ColumnDataSource(deltas)
-    for palette, city in enumerate(source.column_names):
-        if city == 'date': continue  # TODO:  FixMe
-        p.line('date', city, name=city, legend_label=city,
-               color=Category20[len(source.column_names)][palette], source=source, width=2)
-    p.legend.location = "top_left"
-    ret.append((f'{column}/day', p))
-
-    p = figure(title=f'{column}/day 5 day avg')
-    p.xaxis.formatter = DatetimeTickFormatter()
-    add_hover_tool(p)
-    source = ColumnDataSource(smoothed_deltas)
-    source_predicted = ColumnDataSource(predicted_deltas)
-    for palette, city in enumerate(source.column_names):
-        if city == 'date': continue  # TODO:  FixMe
-        p.line('date', city, name=city, legend_label=city,
-               color=Category20[len(source.column_names)][palette], source=source, width=2)
-    for palette, city in enumerate(source_predicted.column_names):
-        if city == 'date': continue  # TODO:  FixMe
-        p.line('date', city, name=f'{city} predicted',
-               color=Category20[len(source_predicted.column_names)][palette], source=source_predicted,
-               width=1, line_dash="dashed")
-    p.legend.location = "top_left"
-    ret.append((f'{column}/day 5 day avg', p))
-
-    #     p = figure(title=f'{column}/day 5 day avg 2nd order')
-    #     p.xaxis.formatter = DatetimeTickFormatter()
-    #     add_hover_tool(p)
-    #     source = ColumnDataSource(smoothed_ddeltas)
-    #     for palette, city in enumerate(city_list):
-    #         p.line('date', city, name=city, legend_label=city,
-    #                color=Category20[len(city_list)][palette],source=source, width=2)
-    #     p.legend.location = "top_left"
-    #     tabs.append((f'{column} 2nd order',p))
+    ret.append(make_graph(deltas, f'{column}/day'))
+    ret.append(make_graph(smoothed_deltas, f'{column}/day 5 day avg', predicted_deltas, 'predicted'))
 
     summary = pd.DataFrame(smoothed_deltas.loc[last_full_date].sort_values())
     if column.startswith('per_capita'):

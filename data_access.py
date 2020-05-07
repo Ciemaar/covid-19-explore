@@ -9,9 +9,13 @@ client = MongoClient(MDB_URL)
 db = client.get_database("covid19")
 stats = db.get_collection("global_and_us")
 metadata = db.get_collection("metadata")
+
+# Get info about the last available date
 meta = metadata.find_one()
 last_date = meta["last_date"]
+last_full_date = last_date - timedelta(days=1)
 
+EARTH_RADIUS = 6371.0  # This is used in the $geoWithin query later.
 
 def snag_data(columns=("date", "confirmed", "deaths", 'state'), **filters):
     df = pd.DataFrame(
@@ -36,9 +40,6 @@ def get_for_country_day(country='US', stat_date=None, **filters):
 
     filters.update({'country': country, "date": stat_date})
     return snag_data(**filters)
-
-
-EARTH_RADIUS = 6371.0  # This is used in the $geoWithin query later.
 
 
 def near_by_data(query_date=None, longitude=-74.114202, latitude=40.6737968, distance_km=250.0, group_by='state'):
@@ -66,4 +67,3 @@ def near_by_data(query_date=None, longitude=-74.114202, latitude=40.6737968, dis
     return df
 
 
-last_full_date = last_date - timedelta(days=1)
