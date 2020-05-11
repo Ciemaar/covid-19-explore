@@ -40,12 +40,12 @@ def make_graph(df, title, extra_df=None, extra_suffix=''):
     return pn.pane.Bokeh(p, name=title)
 
 
-def column_summary(inframe, column):
+def column_summary(inframe, column, rolling_avg=5):
     ret = []
     deltas, smoothed_deltas, ddeltas, smoothed_ddeltas, dddeltas, smoothed_dddeltas, predicted_deltas = calculate_discrete_derivatives(
-        inframe, column)
+        inframe, column, rolling_avg=rolling_avg)
     ret.append(make_graph(deltas, f'{column}/day'))
-    ret.append(make_graph(smoothed_deltas, f'{column}/day 5 day avg', predicted_deltas, 'predicted'))
+    ret.append(make_graph(smoothed_deltas, f'{column}/day {rolling_avg} day avg', predicted_deltas, 'predicted'))
 
     summary = pd.DataFrame(smoothed_deltas.loc[last_full_date].sort_values())
     if column.startswith('per_capita'):
