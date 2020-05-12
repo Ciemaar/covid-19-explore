@@ -1,4 +1,5 @@
 from datetime import timedelta
+from os import environ
 
 import pandas as pd
 import panel as pn
@@ -68,7 +69,7 @@ def state_summary(full_df, lookback, label=None):
             pn.widgets.StaticText(name=f'diffs', value=dchart.render_sparktext())))
 
     diag_to_death = pn.widgets.IntSlider(name='Days from diagnosis to death to estimate CFR', value=7, start=1,
-                                         end=lookback)
+                                         end=lookback, disabled='STATIC_REPORT' in environ)
 
     @pn.depends(diag_to_death)
     def cfr(diag_to_death):
