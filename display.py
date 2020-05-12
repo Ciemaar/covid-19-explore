@@ -55,9 +55,12 @@ def column_summary(inframe, column, rolling_avg=5):
     return ret
 
 
-def state_summary(full_df, lookback, label=None):
+def state_summary(full_df, lookback, label=None, group_by='combined_name'):
     sparks = []
     daily_totals = full_df.groupby('date').sum()
+    full_df['per capita confirmed'] = full_df['confirmed'] / full_df['population']
+    full_df['per capita deaths'] = full_df['deaths'] / full_df['population']
+
     for measure in ['confirmed', 'deaths']:
         chart = pygal.Line()
         chart.add('', daily_totals[measure])
@@ -81,8 +84,13 @@ def state_summary(full_df, lookback, label=None):
     if 'recovered' in df.columns:
         del df['recovered']
     totals = df.sum()
-    df['per capita confirmed'] = df['confirmed'] / df['population']
-    df['per capita deaths'] = df['deaths'] / df['population']
+
+    full_df.reset_index(inplace=True)
+    observed = pn.Tabs()
+    for column in ['deaths', 'per capita deaths', 'confirmed', 'per capita confirmed']:
+        observed.append(make_graph(full_df.pivot(index='date', columns=group_by,
+                                                 values=column), column))
+
     for measure in ['population', 'confirmed', 'deaths']:
         df[f'percent of {measure}'] = 100 * df[measure] / totals[measure]
     return pn.Column(
@@ -92,6 +100,7 @@ def state_summary(full_df, lookback, label=None):
         '(Not editable in .html reports)',
         pn.widgets.StaticText(name=f'Totals {last_full_date.date()}', value=''),
         totals,
+        observed,
         pn.widgets.StaticText(name='Breakdown', value=''),
         pn.pane.DataFrame(df, width=600),
         name=label)
