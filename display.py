@@ -4,7 +4,7 @@ import pandas as pd
 import panel as pn
 import pygal
 from bokeh.models import HoverTool, DatetimeTickFormatter, ColumnDataSource
-from bokeh.palettes import Category20
+from bokeh.palettes import viridis
 from bokeh.plotting import figure
 
 from analysis import calculate_discrete_derivatives
@@ -28,13 +28,13 @@ def make_graph(df, title, extra_df=None, extra_suffix=''):
     for palette, city in enumerate(source.column_names):
         if city == 'date': continue  # TODO:  FixMe
         p.line('date', city, name=city,
-               legend_label=city, color=Category20[len(source.column_names)][palette], source=source, width=2)
+               legend_label=city, color=viridis(len(source.column_names))[palette], source=source, width=2)
     if extra_df is not None:
         extra_source = ColumnDataSource(extra_df)
         for palette, city in enumerate(extra_source.column_names):
             if city == 'date': continue  # TODO:  FixMe
             p.line('date', city, name=f'{city} {extra_suffix}',
-                   color=Category20[len(extra_source.column_names)][palette], source=extra_source,
+                   color=viridis(len(extra_source.column_names))[palette], source=extra_source,
                    width=1, line_dash="dashed")
     p.legend.location = "top_left"
     return pn.pane.Bokeh(p, name=title)
