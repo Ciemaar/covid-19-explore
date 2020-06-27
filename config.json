@@ -1,0 +1,30 @@
+{
+  "short_lookback": 14,
+  "long_lookback": 45,
+  "state_list": [
+    "New York",
+    "New Jersey",
+    "California",
+    "Virginia",
+    "Georgia",
+    "North Carolina",
+    "Texas",
+    "Florida",
+    "Mississippi"
+  ],
+  "city_list": [
+    "New York City, New York, US",
+    "Miami-Dade, Florida, US",
+    "McKinley, New Mexico, US",
+    "Dallas, Texas, US",
+    "Los Angeles, California, US",
+    "San Diego, California, US",
+    "Walla Walla, Washington, US"
+  ],
+  "locations": {
+    "Gallup, NM": {
+      "latitude": 35.521500,
+      "longitude": -108.740507
+    }
+  }
+}
