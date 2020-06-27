@@ -42,12 +42,12 @@ def get_for_country_day(country='US', stat_date=None, **filters):
     return snag_data(**filters)
 
 
-def near_by_data(query_date=None, longitude=-74.114202, latitude=40.6737968, distance_km=250.0, group_by='state'):
-    if query_date is None:
-        query_date = last_full_date
+def near_by_data(stat_date=None, longitude=-77.036519, latitude=38.897384, distance_km=250.0, group_by='state'):
+    if stat_date is None:
+        stat_date = last_full_date
     results = stats.find(
         {
-            "date": query_date,
+            "date": stat_date,
             "loc": {
                 "$geoWithin": {
                     "$centerSphere": [[longitude, latitude], distance_km / EARTH_RADIUS]
@@ -62,6 +62,9 @@ def near_by_data(query_date=None, longitude=-74.114202, latitude=40.6737968, dis
     del df['uid']
     del df['fips']
     del df['country_code']
+    df['deaths'] = df['deaths'].astype('Int64')
+    df['confirmed'] = df['confirmed'].astype('Int64')
+    df['population'] = df['population'].astype('Int64')
     df['per_capita_deaths'] = df['deaths'] / df['population']
     df['per_capita_confirmed'] = df['confirmed'] / df['population']
     return df

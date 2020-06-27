@@ -5,8 +5,8 @@ import pandas as pd
 from data_access import last_full_date
 
 
-def calculate_discrete_derivatives(inframe, column, rolling_avg=5):
-    df = inframe.pivot(index='date', columns='combined_name', values=column)
+def calculate_discrete_derivatives(inframe, column, rolling_avg=5,group_by='combined_name'):
+    df = inframe.pivot(index='date', columns=group_by, values=column)
     deltas = pd.DataFrame([df[c].diff() for c in df.columns]).transpose()
     deltas.fillna(0, inplace=True)
     smoothed_deltas = deltas.rolling(rolling_avg).mean()
